@@ -1,4 +1,4 @@
-function PrimaryButton({ children, ...props }) {
+ function PrimaryButton({ children, ...props }) {
   return (
     <button style={{ background: "blue", color: "white" }} {...props}>
       {children}
