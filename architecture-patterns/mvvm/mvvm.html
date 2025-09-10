@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div id="app">
+      <ul id="todo-list"></ul>
+      <button id="add-btn">Add Todo</button>
+    </div>
+
+    <script>
+      // --- Model ---
+      class TodoModel {
+        constructor() {
+          this.todos = [];
+        }
+        add(todo) {
+          this.todos.push(todo);
+        }
+        getAll() {
+          return this.todos;
+        }
+      }
+
+      // --- View ---
+      class TodoView {
+        constructor() {
+          this.list = document.getElementById("todo-list");
+          this.addBtn = document.getElementById("add-btn");
+        }
+
+        render(todos) {
+          this.list.innerHTML = todos.map(t => `<li>${t}</li>`).join("");
+        }
+
+        bindAdd(handler) {
+          this.addBtn.addEventListener("click", handler);
+        }
+      }
+
+      // --- ViewModel ---
+      class TodoViewModel {
+        constructor(model, view) {
+          this.model = model;
+          this.view = view;
+
+          // View events → send to model
+          this.view.bindAdd(() => this.addTodo());
+
+          // first render
+          this.updateView();
+        }
+
+        addTodo() {
+          this.model.add("New Todo " + (this.model.getAll().length + 1));
+          this.updateView();
+        }
+
+        updateView() {
+          this.view.render(this.model.getAll());
+        }
+      }
+
+      // --- App Start ---
+      const app = new TodoViewModel(new TodoModel(), new TodoView());
+    </script>
+  </body>
+</html>
