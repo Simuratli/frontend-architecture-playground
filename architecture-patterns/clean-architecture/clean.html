@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div id="app">
+      <ul id="todo-list"></ul>
+      <button id="add-btn">Add Todo</button>
+    </div>
+
+    <script>
+      // -----------------------------
+      // 1. Entities (Domain Model)
+      // -----------------------------
+      class Todo {
+        constructor(text) {
+          this.text = text;
+          this.done = false;
+        }
+        toggle() {
+          this.done = !this.done;
+        }
+      }
+
+      // -----------------------------
+      // 2. Use Cases (Application Logic)
+      // -----------------------------
+      function addTodoUseCase(todoRepo, text) {
+        const todo = new Todo(text);
+        todoRepo.add(todo);
+        return todoRepo.getAll();
+      }
+
+      function toggleTodoUseCase(todoRepo, index) {
+        const todos = todoRepo.getAll();
+        if (todos[index]) {
+          todos[index].toggle();
+        }
+        return todos;
+      }
+
+      // -----------------------------
+      // 3. Interface Adapters (Repository)
+      // -----------------------------
+      class TodoRepository {
+        constructor() {
+          this.todos = [];
+        }
+        add(todo) {
+          this.todos.push(todo);
+        }
+        getAll() {
+          return this.todos;
+        }
+      }
+
+      // -----------------------------
+      // 4. Frameworks & UI (Vanilla JS)
+      // -----------------------------
+      class TodoUI {
+        constructor(repo) {
+          this.repo = repo;
+          this.list = document.getElementById("todo-list");
+          this.addBtn = document.getElementById("add-btn");
+
+          this.addBtn.addEventListener("click", () => this.addTodo());
+          this.render();
+        }
+
+        addTodo() {
+          addTodoUseCase(this.repo, "New Todo " + (this.repo.getAll().length + 1));
+          this.render();
+        }
+
+        toggleTodo(index) {
+          toggleTodoUseCase(this.repo, index);
+          this.render();
+        }
+
+        render() {
+          this.list.innerHTML = this.repo
+            .getAll()
+            .map(
+              (t, i) => `
+                <li 
+                  style="cursor:pointer; text-decoration:${t.done ? "line-through" : "none"}"
+                  onclick="ui.toggleTodo(${i})">
+                  ${t.text}
+                </li>`
+            )
+            .join("");
+        }
+      }
+
+      // -----------------------------
+      // App başlat
+      // -----------------------------
+      const repo = new TodoRepository();
+      const ui = new TodoUI(repo);
+      window.ui = ui; // onclick için global bağladık
+    </script>
+  </body>
+</html>
